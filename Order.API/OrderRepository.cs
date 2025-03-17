@@ -12,7 +12,7 @@ namespace Order.API
         {
             _context = context;
         }
-        // Candidate CRUD operations
+        // Order CRUD operations
         public async Task<OrderClass> GetOrderByIdAsync(int id)
         {
             return await _context.Orders.FindAsync(id);
@@ -20,7 +20,7 @@ namespace Order.API
 
         public async Task<List<OrderClass>> GetAllOrdersAsync()
         {
-            //  return await _context.Candidates.ToListAsync();
+            //  return await _context.Orders.ToListAsync();
             return await _context.Orders.ToListAsync();
 
 

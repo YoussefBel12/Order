@@ -1,4 +1,5 @@
-﻿using Asp.Versioning;
+﻿/*
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Order.API.Entities;
@@ -7,10 +8,11 @@ using System.Threading.Tasks;
 
 namespace Order.API.Controllers
 {
+   // [Route("api/[controller]")]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("1.0")]
     [ApiVersion("2.0")]
+
     public class OrderController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -22,38 +24,24 @@ namespace Order.API.Controllers
             _rulesEngineService = rulesEngineService;
         }
 
-        // Version 1.0 - AddOrder without Rules Engine
         [HttpPost]
-        [MapToApiVersion("1.0")]
-        public async Task<ActionResult<int>> AddOrderV1([FromBody] AddOrderCommand command)
+        public async Task<ActionResult<int>> AddOrder([FromBody] AddOrderCommand command)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
-            try
-            {
-                var orderId = await _mediator.Send(command);
-                return CreatedAtAction(nameof(GetOrderById), new { id = orderId }, orderId);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Error creating the order.");
-            }
-        }
-
-        // Version 2.0 - AddOrder with Rules Engine
-        [HttpPost]
-        [MapToApiVersion("2.0")]
-        public async Task<ActionResult<int>> AddOrderV2([FromBody] AddOrderCommand command)
-        {
+            //json rules
+            // Apply business rules using RulesEngineService
             var errors = await _rulesEngineService.ValidateOrder(command);
             if (errors.Count > 0)
             {
                 return BadRequest(new { Errors = errors });
             }
 
+
+
+
+
+            //the logic if json approved
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -64,13 +52,12 @@ namespace Order.API.Controllers
                 var orderId = await _mediator.Send(command);
                 return CreatedAtAction(nameof(GetOrderById), new { id = orderId }, orderId);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Error creating the order.");
             }
         }
 
-        // Common GetOrderById action for both versions
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
@@ -82,22 +69,21 @@ namespace Order.API.Controllers
             return Ok(order);
         }
 
-        // Version 1.0 - GetAllOrders without Rules Engine
-        [HttpGet]
-        [MapToApiVersion("1.0")]
-        public async Task<ActionResult<List<OrderClass>>> GetAllOrdersV1()
-        {
-            var orders = await _mediator.Send(new GetAllOrders());
-            return Ok(orders);
-        }
 
-        // Version 2.0 - GetAllOrders with Rules Engine
-        [HttpGet]
-        [MapToApiVersion("2.0")]
-        public async Task<ActionResult<List<OrderClass>>> GetAllOrdersV2()
-        {
-            var orders = await _mediator.Send(new GetAllOrders());
 
+
+
+
+        
+      
+
+
+        [HttpGet]
+        public async Task<ActionResult<List<OrderClass>>> GetAllOrdersAsync()
+        {
+            var orders = await _mediator.Send(new GetAllOrders()); // Get all orders
+
+            // ✅ Apply filtering using RulesEngine
             var filteredOrders = new List<OrderClass>();
             foreach (var order in orders)
             {
@@ -111,12 +97,29 @@ namespace Order.API.Controllers
             return Ok(filteredOrders);
         }
 
-        // Common DeleteOrder action for both versions
+
+
+
+
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrderAsync(int id)
         {
-            await _mediator.Send(new DeleteOrderCommand { Id = id });
-            return NoContent();
+            await _mediator.Send(new DeleteOrderCommand { Id = id }); // Use object initializer;
+            return NoContent(); // Returns 204 status code
         }
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }
+*/

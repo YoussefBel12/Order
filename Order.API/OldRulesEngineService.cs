@@ -1,4 +1,5 @@
-﻿using RulesEngine.Models;
+﻿/*
+using RulesEngine.Models;
 using RulesEngine;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,23 +10,15 @@ using Order.API;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Microsoft.Identity.Client;
 using Order.API.Migrations;
-using Microsoft.EntityFrameworkCore;
 
 public class RulesEngineService
 {
     private readonly RulesEngine.RulesEngine _rulesEngine;
 
-    public RulesEngineService(OrderDbContext dbContext)
+    public RulesEngineService()
     {
-        var rulesData = dbContext.RulesEngineConfigs.ToList();
-        var workflowRules = rulesData
-            .Select(r => new Workflow
-            {
-                WorkflowName = r.WorkflowName,
-                Rules = JsonConvert.DeserializeObject<Rule[]>(r.Rules) // Deserialize JSON
-            })
-            .ToArray();
-
+        string jsonRules = File.ReadAllText("order-rules.json");
+        var workflowRules = JsonConvert.DeserializeObject<Workflow[]>(jsonRules);
         _rulesEngine = new RulesEngine.RulesEngine(workflowRules);
     }
 
@@ -36,7 +29,7 @@ public class RulesEngineService
     {
 
 
-
+        
         var order = new OrderClass
         {
             Name = command.Name,
@@ -69,3 +62,5 @@ public class RulesEngineService
     }
 
 }
+
+*/

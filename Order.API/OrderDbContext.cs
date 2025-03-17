@@ -9,5 +9,6 @@ namespace Order.API
         {
         }
         public DbSet<OrderClass> Orders { get; set; }
+        public DbSet<RulesEngineConfigs> RulesEngineConfigs { get; set; }
     }
 }
