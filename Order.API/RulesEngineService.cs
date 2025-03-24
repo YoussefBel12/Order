@@ -85,7 +85,7 @@ public class RulesEngineService
         _logger = logger;
 
         // For example, assume the version comes from the request context or headers
-        string requestedVersion = "v1"; // This could come from API headers or query string
+        string requestedVersion = "v2"; // This could come from API headers or query string
 
         // Fetch rules from the database based on the requested version
         var rulesData = dbContext.RulesEngineConfigs

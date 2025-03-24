@@ -16,7 +16,8 @@ public class ProductsController : ControllerBase
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("2.0")]
-public class ProductsV2Controller : ControllerBase
+//controller with numbs just the num dont show in swagger cuz of versioning
+public class Products2Controller : ControllerBase
 {
     [HttpGet]
     public IActionResult GetV2()

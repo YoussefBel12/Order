@@ -11,6 +11,22 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:63742") // Frontend URL
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+        //next line below i added from a video looks important
+              .AllowCredentials();
+    });
+});
+
+
+
+
+
 
 
 // Add API versioning
@@ -30,6 +46,16 @@ builder.Services.AddApiVersioning(options =>
     options.GroupNameFormat = "'v'VVV";
     options.SubstituteApiVersionInUrl = true;
 });
+
+
+
+
+
+
+
+
+
+
 
 
 //register MediatR
@@ -58,7 +84,7 @@ builder.Services.AddScoped<RulesEngineService>();
 
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 
@@ -102,6 +128,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+
+app.UseCors("AllowReactApp"); // Apply CORS policy
 
 app.UseAuthorization();
 
