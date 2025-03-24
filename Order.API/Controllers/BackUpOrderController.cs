@@ -8,11 +8,10 @@ using System.Threading.Tasks;
 
 namespace Order.API.Controllers
 {
-   // [Route("api/[controller]")]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     [ApiVersion("2.0")]
-
     public class OrderController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -24,23 +23,37 @@ namespace Order.API.Controllers
             _rulesEngineService = rulesEngineService;
         }
 
+        // Version 1.0 - AddOrder without Rules Engine
         [HttpPost]
-        public async Task<ActionResult<int>> AddOrder([FromBody] AddOrderCommand command)
+        [MapToApiVersion("1.0")]
+        public async Task<ActionResult<int>> AddOrderV1([FromBody] AddOrderCommand command)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-            //json rules
-            // Apply business rules using RulesEngineService
+            try
+            {
+                var orderId = await _mediator.Send(command);
+                return CreatedAtAction(nameof(GetOrderById), new { id = orderId }, orderId);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Error creating the order.");
+            }
+        }
+
+        // Version 2.0 - AddOrder with Rules Engine
+        [HttpPost]
+        [MapToApiVersion("2.0")]
+        public async Task<ActionResult<int>> AddOrderV2([FromBody] AddOrderCommand command)
+        {
             var errors = await _rulesEngineService.ValidateOrder(command);
             if (errors.Count > 0)
             {
                 return BadRequest(new { Errors = errors });
             }
-
-
-
-
-
-            //the logic if json approved
 
             if (!ModelState.IsValid)
             {
@@ -52,12 +65,13 @@ namespace Order.API.Controllers
                 var orderId = await _mediator.Send(command);
                 return CreatedAtAction(nameof(GetOrderById), new { id = orderId }, orderId);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, "Error creating the order.");
             }
         }
 
+        // Common GetOrderById action for both versions
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
@@ -69,21 +83,22 @@ namespace Order.API.Controllers
             return Ok(order);
         }
 
-
-
-
-
-
-        
-      
-
-
+        // Version 1.0 - GetAllOrders without Rules Engine
         [HttpGet]
-        public async Task<ActionResult<List<OrderClass>>> GetAllOrdersAsync()
+        [MapToApiVersion("1.0")]
+        public async Task<ActionResult<List<OrderClass>>> GetAllOrdersV1()
         {
-            var orders = await _mediator.Send(new GetAllOrders()); // Get all orders
+            var orders = await _mediator.Send(new GetAllOrders());
+            return Ok(orders);
+        }
 
-            // ✅ Apply filtering using RulesEngine
+        // Version 2.0 - GetAllOrders with Rules Engine
+        [HttpGet]
+        [MapToApiVersion("2.0")]
+        public async Task<ActionResult<List<OrderClass>>> GetAllOrdersV2()
+        {
+            var orders = await _mediator.Send(new GetAllOrders());
+
             var filteredOrders = new List<OrderClass>();
             foreach (var order in orders)
             {
@@ -97,29 +112,13 @@ namespace Order.API.Controllers
             return Ok(filteredOrders);
         }
 
-
-
-
-
-
+        // Common DeleteOrder action for both versions
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrderAsync(int id)
         {
-            await _mediator.Send(new DeleteOrderCommand { Id = id }); // Use object initializer;
-            return NoContent(); // Returns 204 status code
+            await _mediator.Send(new DeleteOrderCommand { Id = id });
+            return NoContent();
         }
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }
 */

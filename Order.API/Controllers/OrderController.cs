@@ -1,8 +1,10 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Order.API.Entities;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Order.API.Controllers
@@ -15,18 +17,22 @@ namespace Order.API.Controllers
     {
         private readonly IMediator _mediator;
         private readonly RulesEngineService _rulesEngineService;
+        private readonly OrderDbContext _dbContext;
 
-        public OrderController(IMediator mediator, RulesEngineService rulesEngineService)
+        public OrderController(IMediator mediator, RulesEngineService rulesEngineService, OrderDbContext dbContext )
         {
             _mediator = mediator;
             _rulesEngineService = rulesEngineService;
+            _dbContext = dbContext;
         }
 
         // Version 1.0 - AddOrder without Rules Engine
         [HttpPost]
         [MapToApiVersion("1.0")]
-        public async Task<ActionResult<int>> AddOrderV1([FromBody] AddOrderCommand command)
+        public async Task<ActionResult<int>> AddOrderV1([FromBody] AddOrderCommand command, [FromQuery] string version)
         {
+           
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -46,8 +52,21 @@ namespace Order.API.Controllers
         // Version 2.0 - AddOrder with Rules Engine
         [HttpPost]
         [MapToApiVersion("2.0")]
-        public async Task<ActionResult<int>> AddOrderV2([FromBody] AddOrderCommand command)
+        public async Task<ActionResult<int>> AddOrderV2([FromBody] AddOrderCommand command, [FromQuery] string version)
         {
+
+
+            // Initialize the rules engine with the given version
+            try
+            {
+                _rulesEngineService.InitializeRules(_dbContext, version); // Pass the version here
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+
+            // Validate the order using the rules engine
             var errors = await _rulesEngineService.ValidateOrder(command);
             if (errors.Count > 0)
             {
@@ -94,14 +113,25 @@ namespace Order.API.Controllers
         // Version 2.0 - GetAllOrders with Rules Engine
         [HttpGet]
         [MapToApiVersion("2.0")]
-        public async Task<ActionResult<List<OrderClass>>> GetAllOrdersV2()
+        public async Task<ActionResult<List<OrderClass>>> GetAllOrdersV2([FromQuery] string version)
         {
+            // Initialize the rules engine with the given version
+            try
+            {
+                _rulesEngineService.InitializeRules(_dbContext, version); // Pass the version here
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+
             var orders = await _mediator.Send(new GetAllOrders());
 
             var filteredOrders = new List<OrderClass>();
             foreach (var order in orders)
             {
-                bool shouldInclude = await _rulesEngineService.ShouldIncludeOrder(order);
+                // Apply rules engine filtering for version 2.0
+                bool shouldInclude = await _rulesEngineService.ShouldIncludeOrder(order, version);
                 if (shouldInclude)
                 {
                     filteredOrders.Add(order);
@@ -110,6 +140,7 @@ namespace Order.API.Controllers
 
             return Ok(filteredOrders);
         }
+
 
         // Common DeleteOrder action for both versions
         [HttpDelete("{id}")]
