@@ -130,7 +130,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 
-app.UseCors("AllowReactApp"); // Apply CORS policy
+app.UseCors("AllowReactApp"); 
 
 app.UseAuthorization();
 

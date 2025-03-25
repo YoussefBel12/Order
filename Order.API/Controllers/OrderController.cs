@@ -3,9 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Order.API.Entities;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace Order.API.Controllers
 {
@@ -26,12 +24,11 @@ namespace Order.API.Controllers
             _dbContext = dbContext;
         }
 
-        // Version 1.0 - AddOrder without Rules Engine
+
         [HttpPost]
         [MapToApiVersion("1.0")]
-        public async Task<ActionResult<int>> AddOrderV1([FromBody] AddOrderCommand command, [FromQuery] string version)
+        public async Task<ActionResult<int>> AddOrderV1([FromBody] AddOrderCommand command)
         {
-           
 
             if (!ModelState.IsValid)
             {
@@ -47,7 +44,9 @@ namespace Order.API.Controllers
             {
                 return StatusCode(500, "Error creating the order.");
             }
+
         }
+
 
         // Version 2.0 - AddOrder with Rules Engine
         [HttpPost]
