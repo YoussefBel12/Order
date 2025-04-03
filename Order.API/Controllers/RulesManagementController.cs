@@ -1,4 +1,4 @@
-﻿/*
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Order.API.Entities; // Adjust the namespace as needed
@@ -113,8 +113,70 @@ namespace Order.API.Controllers
 
             return Ok(rules);
         }
+
+
+
+
+
+
+        [HttpPut("set-active/{id}")]
+        public async Task<IActionResult> SetActiveRuleVersion(int id)
+        {
+            var ruleConfig = await _dbContext.RulesEngineConfigs.FindAsync(id);
+            if (ruleConfig == null)
+            {
+                return NotFound();
+            }
+
+            // Check if the version is already active in the same workflow
+            var activeRule = await _dbContext.RulesEngineConfigs
+                .FirstOrDefaultAsync(r => r.IsActive && r.WorkflowName == ruleConfig.WorkflowName);
+
+            if (activeRule != null && activeRule.Id == ruleConfig.Id)
+            {
+                return Ok(new { Message = "This version is already active.", ActiveVersion = ruleConfig.Version });
+            }
+
+            // Deactivate all other versions in the same workflow
+            var allRulesInWorkflow = await _dbContext.RulesEngineConfigs
+                .Where(r => r.WorkflowName == ruleConfig.WorkflowName)
+                .ToListAsync();
+
+            foreach (var rule in allRulesInWorkflow)
+            {
+                rule.IsActive = false;
+                _dbContext.Entry(rule).State = EntityState.Modified; // Explicitly mark as modified
+            }
+
+            // Set the selected version as active
+            ruleConfig.IsActive = true;
+            _dbContext.Entry(ruleConfig).State = EntityState.Modified; // Explicitly mark as modified
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { Message = "Active rule version updated.", ActiveVersion = ruleConfig.Version });
+        }
+
+
+
+        [HttpGet("active-all")]
+        public async Task<ActionResult<IEnumerable<RulesEngineConfigs>>> GetAllActiveRules()
+        {
+            var activeRules = await _dbContext.RulesEngineConfigs
+                .Where(r => r.IsActive)
+                .ToListAsync();
+
+            if (activeRules.Count == 0)
+            {
+                return NotFound("No active rule versions found.");
+            }
+
+            return Ok(activeRules);
+        }
+
+
+
     }
 }
 
-*/
+
 
