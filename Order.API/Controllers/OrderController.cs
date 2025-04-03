@@ -1,4 +1,5 @@
-﻿using Asp.Versioning;
+﻿/*
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +9,7 @@ using Order.API.Entities;
 namespace Order.API.Controllers
 {
     [ApiController]
-    /*    [Route("api/v{version:apiVersion}/[controller]")]
-        [ApiVersion("1.0")]
-        [ApiVersion("2.0")]
-    */
+   
            [Route("api/[controller]")]
         public class OrderController : ControllerBase
         {
@@ -26,34 +24,10 @@ namespace Order.API.Controllers
                 _dbContext = dbContext;
             }
 
-    /*
-            [HttpPost]
-            [MapToApiVersion("1.0")]
-            public async Task<ActionResult<int>> AddOrderV1([FromBody] AddOrderCommand command)
-            {
-
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                try
-                {
-                    var orderId = await _mediator.Send(command);
-                    return CreatedAtAction(nameof(GetOrderById), new { id = orderId }, orderId);
-                }
-                catch (Exception)
-                {
-                    return StatusCode(500, "Error creating the order.");
-                }
-
-            }
-    */
-
-    // Version 2.0 - AddOrder with Rules Engine
+   
     [HttpPost]
-  //      [MapToApiVersion("2.0")]
-        public async Task<ActionResult<int>> AddOrderV2([FromBody] AddOrderCommand command, [FromQuery] string version)
+  
+        public async Task<ActionResult<int>> AddOrder([FromBody] AddOrderCommand command, [FromQuery] string version)
         {
 
 
@@ -90,7 +64,7 @@ namespace Order.API.Controllers
             }
         }
 
-        // Common GetOrderById action for both versions
+       
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
@@ -103,23 +77,10 @@ namespace Order.API.Controllers
         }
 
 
-        /*
-        // Version 1.0 - GetAllOrders without Rules Engine
+       
         [HttpGet]
-        [MapToApiVersion("1.0")]
-        public async Task<ActionResult<List<OrderClass>>> GetAllOrdersV1()
-        {
-            var orders = await _mediator.Send(new GetAllOrders());
-            return Ok(orders);
-        }
-        */
 
-
-
-        // Version 2.0 - GetAllOrders with Rules Engine
-        [HttpGet]
-   //     [MapToApiVersion("2.0")]
-        public async Task<ActionResult<List<OrderClass>>> GetAllOrdersV2([FromQuery] string version)
+        public async Task<ActionResult<List<OrderClass>>> GetAllOrders([FromQuery] string version)
         {
             // Initialize the rules engine with the given version
             try
@@ -136,7 +97,7 @@ namespace Order.API.Controllers
             var filteredOrders = new List<OrderClass>();
             foreach (var order in orders)
             {
-                // Apply rules engine filtering for version 2.0
+               
                 bool shouldInclude = await _rulesEngineService.ShouldIncludeOrder(order, version);
                 if (shouldInclude)
                 {
@@ -148,7 +109,7 @@ namespace Order.API.Controllers
         }
 
 
-        // Common DeleteOrder action for both versions
+       
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrderAsync(int id)
         {
@@ -157,3 +118,5 @@ namespace Order.API.Controllers
         }
     }
 }
+*/
+

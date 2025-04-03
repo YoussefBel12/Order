@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿
+
+using Newtonsoft.Json;
 using Order.API.Entities;
 using Order.API;
 using RulesEngine.Models;
@@ -122,5 +124,4 @@ public class RulesEngineService
 
 
 }
-
 
