@@ -8,49 +8,51 @@ using Order.API.Entities;
 namespace Order.API.Controllers
 {
     [ApiController]
-    [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("1.0")]
-    [ApiVersion("2.0")]
-    public class OrderController : ControllerBase
-    {
-        private readonly IMediator _mediator;
-        private readonly RulesEngineService _rulesEngineService;
-        private readonly OrderDbContext _dbContext;
-
-        public OrderController(IMediator mediator, RulesEngineService rulesEngineService, OrderDbContext dbContext )
+    /*    [Route("api/v{version:apiVersion}/[controller]")]
+        [ApiVersion("1.0")]
+        [ApiVersion("2.0")]
+    */
+           [Route("api/[controller]")]
+        public class OrderController : ControllerBase
         {
-            _mediator = mediator;
-            _rulesEngineService = rulesEngineService;
-            _dbContext = dbContext;
-        }
+            private readonly IMediator _mediator;
+            private readonly RulesEngineService _rulesEngineService;
+            private readonly OrderDbContext _dbContext;
 
-
-        [HttpPost]
-        [MapToApiVersion("1.0")]
-        public async Task<ActionResult<int>> AddOrderV1([FromBody] AddOrderCommand command)
-        {
-
-            if (!ModelState.IsValid)
+            public OrderController(IMediator mediator, RulesEngineService rulesEngineService, OrderDbContext dbContext )
             {
-                return BadRequest(ModelState);
+                _mediator = mediator;
+                _rulesEngineService = rulesEngineService;
+                _dbContext = dbContext;
             }
 
-            try
+    /*
+            [HttpPost]
+            [MapToApiVersion("1.0")]
+            public async Task<ActionResult<int>> AddOrderV1([FromBody] AddOrderCommand command)
             {
-                var orderId = await _mediator.Send(command);
-                return CreatedAtAction(nameof(GetOrderById), new { id = orderId }, orderId);
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                try
+                {
+                    var orderId = await _mediator.Send(command);
+                    return CreatedAtAction(nameof(GetOrderById), new { id = orderId }, orderId);
+                }
+                catch (Exception)
+                {
+                    return StatusCode(500, "Error creating the order.");
+                }
+
             }
-            catch (Exception)
-            {
-                return StatusCode(500, "Error creating the order.");
-            }
+    */
 
-        }
-
-
-        // Version 2.0 - AddOrder with Rules Engine
-        [HttpPost]
-        [MapToApiVersion("2.0")]
+    // Version 2.0 - AddOrder with Rules Engine
+    [HttpPost]
+  //      [MapToApiVersion("2.0")]
         public async Task<ActionResult<int>> AddOrderV2([FromBody] AddOrderCommand command, [FromQuery] string version)
         {
 
@@ -100,6 +102,8 @@ namespace Order.API.Controllers
             return Ok(order);
         }
 
+
+        /*
         // Version 1.0 - GetAllOrders without Rules Engine
         [HttpGet]
         [MapToApiVersion("1.0")]
@@ -108,10 +112,13 @@ namespace Order.API.Controllers
             var orders = await _mediator.Send(new GetAllOrders());
             return Ok(orders);
         }
+        */
+
+
 
         // Version 2.0 - GetAllOrders with Rules Engine
         [HttpGet]
-        [MapToApiVersion("2.0")]
+   //     [MapToApiVersion("2.0")]
         public async Task<ActionResult<List<OrderClass>>> GetAllOrdersV2([FromQuery] string version)
         {
             // Initialize the rules engine with the given version
