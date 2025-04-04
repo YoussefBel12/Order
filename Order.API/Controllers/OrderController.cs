@@ -137,6 +137,7 @@ namespace Order.API.Controllers
         private readonly IMediator _mediator;
         private readonly RulesEngineService _rulesEngineService;
         private readonly OrderDbContext _dbContext;
+        private object _logger;
 
         public OrderController(IMediator mediator, RulesEngineService rulesEngineService, OrderDbContext dbContext)
         {
@@ -163,7 +164,7 @@ namespace Order.API.Controllers
 
             try
             {
-                _rulesEngineService.InitializeRules(_dbContext, activeVersion);
+                _rulesEngineService.InitializeRules(_dbContext, activeVersion, "OrderValidationRules"); // Ensure only validation rules load
             }
             catch (ArgumentException ex)
             {
@@ -192,6 +193,7 @@ namespace Order.API.Controllers
             }
         }
 
+
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
@@ -203,29 +205,61 @@ namespace Order.API.Controllers
             return Ok(order);
         }
 
+        /*       [HttpGet]
+               public async Task<ActionResult<List<OrderClass>>> GetAllOrders()
+               {
+                   var activeVersion = await GetActiveRuleVersion();
+                   if (string.IsNullOrEmpty(activeVersion))
+                   {
+                       return BadRequest(new { Error = "No active rule version set." });
+                   }
+
+                   var orders = await _mediator.Send(new GetAllOrders());
+                   var filteredOrders = new List<OrderClass>();
+
+                   foreach (var order in orders)
+                   {
+                       bool shouldInclude = await _rulesEngineService.ShouldIncludeOrder(order, activeVersion);
+                       if (shouldInclude)
+                       {
+                           filteredOrders.Add(order);
+                       }
+                   }
+
+                   return Ok(filteredOrders);
+               }
+        */
+
         [HttpGet]
-        public async Task<ActionResult<List<OrderClass>>> GetAllOrders()
+        public async Task<ActionResult<List<OrderClass>>> GetAllOrders(string activeVersion)
         {
-            var activeVersion = await GetActiveRuleVersion();
             if (string.IsNullOrEmpty(activeVersion))
             {
-                return BadRequest(new { Error = "No active rule version set." });
+                return BadRequest("Active version must be provided.");
             }
 
-            var orders = await _mediator.Send(new GetAllOrders());
-            var filteredOrders = new List<OrderClass>();
-
-            foreach (var order in orders)
+            try
             {
-                bool shouldInclude = await _rulesEngineService.ShouldIncludeOrder(order, activeVersion);
-                if (shouldInclude)
-                {
-                    filteredOrders.Add(order);
-                }
-            }
+                // Explicitly initialize with the correct workflow for filtering
+                _rulesEngineService.InitializeRules(_dbContext, activeVersion, "OrderFilterRules");
 
-            return Ok(filteredOrders);
+                var orders = await _dbContext.Orders.ToListAsync();
+                var filteredOrders = await _rulesEngineService.FilterOrders(orders);
+
+                return Ok(filteredOrders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
+
+
+
+
+
+
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrderAsync(int id)

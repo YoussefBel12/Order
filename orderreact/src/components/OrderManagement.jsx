@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -13,17 +12,11 @@ import {
     Paper,
     TextField,
     Button,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
 } from "@mui/material";
 
 const API_BASE_URL = "https://localhost:7094/api";
 
 const OrderManagement = () => {
-    const [apiVersion, setApiVersion] = useState("1.0");
-    const [rulesEngineVersion, setRulesEngineVersion] = useState("v1");
     const [orders, setOrders] = useState([]);
     const [newOrder, setNewOrder] = useState({
         name: "",
@@ -36,20 +29,12 @@ const OrderManagement = () => {
 
     useEffect(() => {
         fetchOrders();
-    }, [apiVersion, rulesEngineVersion]);
+    }, []);
 
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const url =
-                apiVersion === "2.0"
-                    ? `${API_BASE_URL}/v${apiVersion}/Order?version=${rulesEngineVersion}`
-                    : `${API_BASE_URL}/v${apiVersion}/Order`;
-
-            const response = await axios.get(url, {
-                headers: { Accept: "text/plain" },
-            });
-
+            const response = await axios.get(`${API_BASE_URL}/Order`);
             setOrders(response.data);
             setError(null);
         // eslint-disable-next-line no-unused-vars
@@ -62,12 +47,7 @@ const OrderManagement = () => {
     const addOrder = async () => {
         setLoading(true);
         try {
-            const url =
-                apiVersion === "2.0"
-                    ? `${API_BASE_URL}/v${apiVersion}/Order?version=${rulesEngineVersion}`
-                    : `${API_BASE_URL}/v${apiVersion}/Order`;
-
-            const response = await axios.post(url, newOrder);
+            const response = await axios.post(`${API_BASE_URL}/Order`, newOrder);
             setOrders([...orders, { id: response.data, ...newOrder }]);
             setNewOrder({ name: "", email: "", phone: "", orderAmount: 0 });
             setError(null);
@@ -81,7 +61,7 @@ const OrderManagement = () => {
     const deleteOrder = async (id) => {
         setLoading(true);
         try {
-            await axios.delete(`${API_BASE_URL}/v${apiVersion}/Order/${id}`);
+            await axios.delete(`${API_BASE_URL}/Order/${id}`);
             setOrders(orders.filter((order) => order.id !== id));
             setError(null);
         // eslint-disable-next-line no-unused-vars
@@ -97,27 +77,6 @@ const OrderManagement = () => {
                 Order Management
             </Typography>
 
-            
-            <FormControl fullWidth margin="normal">
-                <InputLabel>API Version</InputLabel>
-                <Select value={apiVersion} onChange={(e) => setApiVersion(e.target.value)}>
-                    <MenuItem value="1.0">v1.0 (No Rules Engine)</MenuItem>
-                    <MenuItem value="2.0">v2.0 (With Rules Engine)</MenuItem>
-                </Select>
-            </FormControl>
-
-           
-            {apiVersion === "2.0" && (
-                <FormControl fullWidth margin="normal">
-                    <InputLabel>Rules Engine Version</InputLabel>
-                    <Select value={rulesEngineVersion} onChange={(e) => setRulesEngineVersion(e.target.value)}>
-                        <MenuItem value="v1">Rules v1</MenuItem>
-                        <MenuItem value="v2">Rules v2</MenuItem>
-                    </Select>
-                </FormControl>
-            )}
-
-            
             <Paper sx={{ p: 2, mt: 2, backgroundColor: "#f3e5f5" }}>
                 <Typography variant="h6" gutterBottom>
                     Add Order
@@ -165,7 +124,6 @@ const OrderManagement = () => {
                 </Button>
             </Paper>
 
-          
             {loading ? (
                 <Typography sx={{ mt: 2 }}>Loading...</Typography>
             ) : error ? (
@@ -213,4 +171,3 @@ const OrderManagement = () => {
 };
 
 export default OrderManagement;
-
