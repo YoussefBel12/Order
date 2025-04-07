@@ -7,121 +7,97 @@ using RulesEngine.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
-public class RulesEngineService
+namespace Order.APIapi
 {
-    private  RulesEngine.RulesEngine _rulesEngine;
-    private readonly ILogger<RulesEngineService> _logger;
-    private readonly OrderDbContext OrderDbContext;
-    // Inject OrderDbContext and ILogger to access the database and log information
-    public RulesEngineService(OrderDbContext dbContext, ILogger<RulesEngineService> logger)
+    public class RulesEngineService
     {
-        _logger = logger;
-        _rulesEngine = null; // Initialize here to be set later
-        OrderDbContext = dbContext;
-    }
+        private RulesEngine.RulesEngine _rulesEngine;
+        private readonly ILogger<RulesEngineService> _logger;
+        private readonly OrderDbContext _dbContext;
 
-    // This method dynamically loads the rule engine based on the requested engine and version
-    public void InitializeRules(OrderDbContext dbContext, string version)
-    {
-        // Fetch rules from the database based on the requested version
-        var rulesData = dbContext.RulesEngineConfigs
-            .Where(r => r.Version == version)  // Fetch by the user-selected version
-            .ToList();
-
-        if (!rulesData.Any())
+        public RulesEngineService(OrderDbContext dbContext, ILogger<RulesEngineService> logger)
         {
-            _logger.LogError($"No rules found for version {version}");
-            throw new ArgumentException($"No rules found for version {version}");
+            _dbContext = dbContext;
+            _logger = logger;
         }
 
-        // Deserialize the rules from JSON into Rule objects (or whatever structure you need)
-        var workflowRules = rulesData
-            .Select(r => new Workflow
+        public async Task InitializeRulesAsync(OrderDbContext dbContext, string version, string workflowName)
+        {
+            var rulesData = await dbContext.RulesEngineConfigs
+                .Where(r => r.Version == version && r.WorkflowName == workflowName)
+                .ToListAsync();
+
+            if (!rulesData.Any())
+                throw new ArgumentException($"No rules found for workflow '{workflowName}' and version '{version}'");
+
+            var workflows = rulesData.Select(r => new Workflow
             {
                 WorkflowName = r.WorkflowName,
-                Rules = JsonConvert.DeserializeObject<Rule[]>(r.Rules)  // Assuming Rule is your rule structure
-            })
-            .ToArray();
+                Rules = JsonConvert.DeserializeObject<Rule[]>(r.Rules)
+            }).ToArray();
 
-        // Initialize the rules (for now, just storing them or setting them up in memory)
-        _rulesEngine = new RulesEngine.RulesEngine(workflowRules);
-    }
-
-
-    // Example method for validating orders
-    public async Task<List<string>> ValidateOrder(AddOrderCommand command)
-    {
-        var order = new OrderClass
-        {
-            Name = command.Name,
-            Email = command.Email,
-            Phone = command.Phone,
-            OrderAmount = command.OrderAmount
-        };
-
-        var inputs = new RuleParameter("order", order);
-        List<RuleResultTree> resultList;
-        try
-        {
-            resultList = await _rulesEngine.ExecuteAllRulesAsync("OrderValidationRules", inputs);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing rules");
-            throw;
+            _rulesEngine = new RulesEngine.RulesEngine(workflows);
         }
 
-        return resultList
-            .Where(r => !r.IsSuccess)
-            .Select(r => r.ExceptionMessage ?? "Validation failed")
-            .ToList();
-    }
-
- 
-
-    public async Task<bool> ShouldIncludeOrder(OrderClass order, string version)
-    {
-        // Fetch the rules from the database based on the version
-        var rulesData = OrderDbContext.RulesEngineConfigs
-            .Where(r => r.Version == version) // Get rules for the selected version
-            .FirstOrDefault();
-
-        if (rulesData == null)
+        public async Task<List<string>> ValidateOrder(AddOrderCommand command)
         {
-            _logger.LogError($"No rules found for version {version}");
-            return false; // If no rules found for the version, exclude the order
+            var order = new OrderClass
+            {
+                Name = command.Name,
+                Email = command.Email,
+                Phone = command.Phone,
+                OrderAmount = command.OrderAmount
+            };
+
+            var inputs = new RuleParameter("order", order);
+            try
+            {
+                var resultList = await _rulesEngine.ExecuteAllRulesAsync("OrderValidationRules", inputs);
+                return resultList
+                    .Where(r => !r.IsSuccess)
+                    .Select(r => r.ExceptionMessage ?? "Validation failed")
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error executing validation rules");
+                throw;
+            }
         }
 
-        // Deserialize the rules JSON into a list of Rule objects
-        var rules = JsonConvert.DeserializeObject<List<Rule>>(rulesData.Rules);
-
-        // Initialize the RulesEngine with the deserialized rules
-        var workflow = new Workflow
+        public async Task<bool> ShouldIncludeOrder(OrderClass order, string version, string workflowName)
         {
-            WorkflowName = $"{version}Workflow",
-            Rules = rules.ToArray()
-        };
+            var rulesData = await _dbContext.RulesEngineConfigs
+                .FirstOrDefaultAsync(r => r.Version == version && r.WorkflowName == workflowName);
 
-        var ruleEngine = new RulesEngine.RulesEngine(new[] { workflow });
+            if (rulesData == null)
+            {
+                _logger.LogError($"No rules found for workflow '{workflowName}' and version '{version}'");
+                return false;
+            }
 
-        // Create the rule parameter for the order
-        var ruleParameter = new RuleParameter("order", order);
+            var rules = JsonConvert.DeserializeObject<List<Rule>>(rulesData.Rules);
+            var workflow = new Workflow
+            {
+                WorkflowName = workflowName,
+                Rules = rules.ToArray()
+            };
 
-        try
-        {
-            // Execute all rules for this order and this version
-            var resultList = await ruleEngine.ExecuteAllRulesAsync($"{version}Workflow", ruleParameter);
+            var ruleEngine = new RulesEngine.RulesEngine(new[] { workflow });
+            var ruleParameter = new RuleParameter("order", order);
 
-            // If all rules pass (i.e., IsSuccess is true for all), the order should be included
-            return resultList.All(r => r.IsSuccess);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error executing rules");
-            throw;
+            try
+            {
+                var resultList = await ruleEngine.ExecuteAllRulesAsync(workflowName, ruleParameter);
+                return resultList.All(r => r.IsSuccess);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error executing filter rules");
+                throw;
+            }
         }
     }
 
 
 }
-

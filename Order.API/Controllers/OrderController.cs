@@ -127,6 +127,7 @@ using Order.API.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Order.APIapi;
 
 namespace Order.API.Controllers
 {
@@ -145,25 +146,25 @@ namespace Order.API.Controllers
             _dbContext = dbContext;
         }
 
-        // Helper method to get the active rule version
-        private async Task<string?> GetActiveRuleVersion()
+        private async Task<string?> GetActiveVersionForWorkflow(string workflowName)
         {
-            var activeRule = await _dbContext.RulesEngineConfigs.FirstOrDefaultAsync(r => r.IsActive);
-            return activeRule?.Version;
+            var config = await _dbContext.RulesEngineConfigs
+                .FirstOrDefaultAsync(r => r.WorkflowName == workflowName && r.IsActive);
+            return config?.Version;
         }
 
         [HttpPost]
         public async Task<ActionResult<int>> AddOrder([FromBody] AddOrderCommand command)
         {
-            var activeVersion = await GetActiveRuleVersion();
-            if (string.IsNullOrEmpty(activeVersion))
-            {
-                return BadRequest(new { Error = "No active rule version set." });
-            }
+            var validationWorkflow = "OrderValidationRules";
+            var version = await GetActiveVersionForWorkflow(validationWorkflow);
+
+            if (string.IsNullOrEmpty(version))
+                return BadRequest(new { Error = $"No active version for {validationWorkflow}" });
 
             try
             {
-                _rulesEngineService.InitializeRules(_dbContext, activeVersion);
+                await _rulesEngineService.InitializeRulesAsync(_dbContext, version, validationWorkflow);
             }
             catch (ArgumentException ex)
             {
@@ -172,21 +173,17 @@ namespace Order.API.Controllers
 
             var errors = await _rulesEngineService.ValidateOrder(command);
             if (errors.Count > 0)
-            {
                 return BadRequest(new { Errors = errors });
-            }
 
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             try
             {
                 var orderId = await _mediator.Send(command);
                 return CreatedAtAction(nameof(GetOrderById), new { id = orderId }, orderId);
             }
-            catch (Exception)
+            catch
             {
                 return StatusCode(500, "Error creating the order.");
             }
@@ -196,32 +193,26 @@ namespace Order.API.Controllers
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
             var order = await _mediator.Send(new GetOrderByIdQuery { Id = id });
-            if (order == null)
-            {
-                return NotFound();
-            }
-            return Ok(order);
+            return order == null ? NotFound() : Ok(order);
         }
 
         [HttpGet]
         public async Task<ActionResult<List<OrderClass>>> GetAllOrders()
         {
-            var activeVersion = await GetActiveRuleVersion();
-            if (string.IsNullOrEmpty(activeVersion))
-            {
-                return BadRequest(new { Error = "No active rule version set." });
-            }
+            var filterWorkflow = "OrderFilterRules";
+            var version = await GetActiveVersionForWorkflow(filterWorkflow);
+
+            if (string.IsNullOrEmpty(version))
+                return BadRequest(new { Error = $"No active version for {filterWorkflow}" });
 
             var orders = await _mediator.Send(new GetAllOrders());
             var filteredOrders = new List<OrderClass>();
 
             foreach (var order in orders)
             {
-                bool shouldInclude = await _rulesEngineService.ShouldIncludeOrder(order, activeVersion);
-                if (shouldInclude)
-                {
+                bool include = await _rulesEngineService.ShouldIncludeOrder(order, version, filterWorkflow);
+                if (include)
                     filteredOrders.Add(order);
-                }
             }
 
             return Ok(filteredOrders);
@@ -234,4 +225,6 @@ namespace Order.API.Controllers
             return NoContent();
         }
     }
+
+
 }
