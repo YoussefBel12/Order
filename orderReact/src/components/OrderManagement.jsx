@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -124,6 +125,34 @@ const OrderManagement = () => {
                 </Button>
             </Paper>
 
+
+
+
+
+
+            
+      {/* Link Button for Navigation u can remove it i added it */}
+            <div>
+            <Link to="/">
+                <Button variant="outlined" sx={{ mt: 4, backgroundColor: "#f3e5f5" }}>
+                    Go to Home
+                </Button>
+                </Link>
+
+                <Link to="/Rules">
+                    <Button variant="outlined" sx={{ mt: 4, backgroundColor: "#f3e5f5" }}>
+                        Go to Rules Management
+                    </Button>
+                </Link>
+            </div>
+
+
+
+
+
+
+
+
             {loading ? (
                 <Typography sx={{ mt: 2 }}>Loading...</Typography>
             ) : error ? (
@@ -166,7 +195,10 @@ const OrderManagement = () => {
                     </Table>
                 </TableContainer>
             )}
-        </Container>
+        </Container> 
+       
+                
+           
     );
 };
 
