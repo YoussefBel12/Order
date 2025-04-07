@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/orderreact/src/components/OrderManagement.jsx
+/orderreact/src/components/RulesManagement.jsx
+/orderreact/src/App.jsx
+/.gitignore
