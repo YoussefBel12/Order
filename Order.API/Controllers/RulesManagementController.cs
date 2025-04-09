@@ -201,12 +201,37 @@ namespace Order.API.Controllers
 
         // GET: api/RulesManagement
         // Retrieves all rules configurations.
+
+        /*
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RulesEngineConfigs>>> GetAllRules()
         {
             var rules = await _dbContext.RulesEngineConfigs.ToListAsync();
             return Ok(rules);
         }
+        */
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<RulesEngineConfigs>>> GetAllRules(
+    [FromQuery] bool includeArchived = false)
+        {
+            var query = _dbContext.RulesEngineConfigs.AsQueryable();
+
+            if (!includeArchived)
+            {
+                query = query.Where(r => !r.IsArchived);
+            }
+
+            return Ok(await query.ToListAsync());
+        }
+
+
+
+
+
+
+
+
 
         // GET: api/RulesManagement/{id}
         // Retrieves a single rule configuration by its ID.
@@ -223,6 +248,7 @@ namespace Order.API.Controllers
 
         // POST: api/RulesManagement
         // Creates a new rule configuration.
+        /*
         [HttpPost]
         public async Task<ActionResult<RulesEngineConfigs>> CreateRule(RulesEngineConfigs ruleConfig)
         {
@@ -233,6 +259,31 @@ namespace Order.API.Controllers
 
             return CreatedAtAction(nameof(GetRule), new { id = ruleConfig.Id }, ruleConfig);
         }
+        */
+
+
+
+
+
+        [HttpPost]
+        public async Task<ActionResult<RulesEngineConfigs>> CreateRule(
+    [FromBody] RulesEngineConfigs ruleConfig)
+        {
+            // Ensure new rules aren't archived by default
+            ruleConfig.IsArchived = false;
+            _dbContext.RulesEngineConfigs.Add(ruleConfig);
+            await _dbContext.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetRule), new { id = ruleConfig.Id }, ruleConfig);
+        }
+
+
+
+
+
+
+
+
+
 
         // PUT: api/RulesManagement/{id}
         // Updates an existing rule configuration.
@@ -267,6 +318,7 @@ namespace Order.API.Controllers
 
         // DELETE: api/RulesManagement/{id}
         // Deletes a rule configuration.
+        /*
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRule(int id)
         {
@@ -281,19 +333,66 @@ namespace Order.API.Controllers
 
             return NoContent();
         }
+        */
+
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRule(int id)
+        {
+            var ruleConfig = await _dbContext.RulesEngineConfigs.FindAsync(id);
+            if (ruleConfig == null)
+            {
+                return NotFound();
+            }
+
+            ruleConfig.IsArchived = true; // Archive instead of delete
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
+
+
+
+
+
+
+
+
 
         // GET: api/RulesManagement/workflow/{workflowName}
         // Optional: Retrieves rules configurations filtered by workflow name.
+        /*
+         [HttpGet("workflow/{workflowName}")]
+         public async Task<ActionResult<IEnumerable<RulesEngineConfigs>>> GetRulesByWorkflow(string workflowName)
+         {
+             var rules = await _dbContext.RulesEngineConfigs
+      .Where(r => r.WorkflowName == workflowName)
+      .ToListAsync();
+
+
+             return Ok(rules);
+         }
+        */
         [HttpGet("workflow/{workflowName}")]
-        public async Task<ActionResult<IEnumerable<RulesEngineConfigs>>> GetRulesByWorkflow(string workflowName)
+        public async Task<ActionResult<IEnumerable<RulesEngineConfigs>>> GetRulesByWorkflow(
+     string workflowName,
+     [FromQuery] bool includeArchived = false)
         {
-            var rules = await _dbContext.RulesEngineConfigs
-     .Where(r => r.WorkflowName == workflowName)
-     .ToListAsync();
+            var query = _dbContext.RulesEngineConfigs
+                .Where(r => r.WorkflowName == workflowName);
 
+            if (!includeArchived)
+            {
+                query = query.Where(r => !r.IsArchived);
+            }
 
-            return Ok(rules);
+            return Ok(await query.ToListAsync());
         }
+
+
+
 
 
 

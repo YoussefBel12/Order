@@ -127,7 +127,7 @@ using Order.API.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Order.APIapi;
+using Order.API;
 
 namespace Order.API.Controllers
 {
@@ -146,12 +146,31 @@ namespace Order.API.Controllers
             _dbContext = dbContext;
         }
 
+        /*
         private async Task<string?> GetActiveVersionForWorkflow(string workflowName)
         {
             var config = await _dbContext.RulesEngineConfigs
                 .FirstOrDefaultAsync(r => r.WorkflowName == workflowName && r.IsActive);
             return config?.Version;
         }
+        */
+
+        private async Task<string?> GetActiveVersionForWorkflow(string workflowName)
+        {
+            var config = await _dbContext.RulesEngineConfigs
+                .FirstOrDefaultAsync(r =>
+                    r.WorkflowName == workflowName &&
+                    r.IsActive &&
+                    !r.IsArchived &&
+                    (r.ExpirationDate == null || r.ExpirationDate > DateTime.UtcNow)
+                );
+            return config?.Version;
+        }
+
+
+
+
+
 
         [HttpPost]
         public async Task<ActionResult<int>> AddOrder([FromBody] AddOrderCommand command)
@@ -218,13 +237,20 @@ namespace Order.API.Controllers
             return Ok(filteredOrders);
         }
 
+
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrderAsync(int id)
         {
             await _mediator.Send(new DeleteOrderCommand { Id = id });
             return NoContent();
         }
-    }
+                
 
+
+
+       
+
+    }
 
 }

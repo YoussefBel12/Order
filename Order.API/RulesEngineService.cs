@@ -7,7 +7,7 @@ using RulesEngine.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
-namespace Order.APIapi
+namespace Order.API
 {
     public class RulesEngineService
     {

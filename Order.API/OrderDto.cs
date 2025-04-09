@@ -1,13 +1,18 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace Order.API
 {
     public class OrderDto
     {
         public int Id { get; set; }
-
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public string Phone { get; set; }
-        public int OrderAmount { get; set; }
+        [Required]
+        public required string Name { get; set; }
+        [Required]
+        public required string Email { get; set; }
+        [Required]
+        public required string Phone { get; set; }
+        [Required]
+        public required int OrderAmount { get; set; }
     }
 }

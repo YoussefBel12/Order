@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Order.API;
-using Order.APIapi;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,6 +83,15 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<RulesEngineService>();
 
 
+
+
+// Add configuration binding
+builder.Services.Configure<ConfigurationBuilder>(
+    builder.Configuration.GetSection("RuleArchiving")
+);
+
+// Add the background service
+builder.Services.AddHostedService<RuleArchivingService>();
 
 builder.Services.AddControllers();
 
