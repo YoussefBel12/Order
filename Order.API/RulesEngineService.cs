@@ -15,10 +15,11 @@ namespace Order.API
         private readonly ILogger<RulesEngineService> _logger;
         private readonly OrderDbContext _dbContext;
 
-        public RulesEngineService(OrderDbContext dbContext, ILogger<RulesEngineService> logger)
+        public RulesEngineService(OrderDbContext dbContext, ILogger<RulesEngineService> logger )
         {
             _dbContext = dbContext;
             _logger = logger;
+            _rulesEngine = new RulesEngine.RulesEngine(new Workflow[0]); // Initialize with an empty workflow
         }
 
         public async Task InitializeRulesAsync(OrderDbContext dbContext, string version, string workflowName)

@@ -301,7 +301,7 @@ const RulesManagement = () => {
         workflowName: '',
         rules: [],
         expirationDate: '',
-        isActive: true,
+        isActive: false,
     });
 
     const [currentRule, setCurrentRule] = useState({
