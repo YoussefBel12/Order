@@ -16,5 +16,7 @@ public class RulesEngineConfigs
     // New fields
     public DateTime? ExpirationDate { get; set; }  // Null = no expiration
     public bool IsArchived { get; set; } = false;  // Set true after expiration if archiving instead of deleting
+    public DateTime? ActivationDate { get; set; }  // Null = no activation
+    public DateTime? DesactivationDate { get; set; }  // Null = no deactivation
 
 }

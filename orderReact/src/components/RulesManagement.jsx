@@ -302,6 +302,8 @@ const RulesManagement = () => {
         rules: [],
         expirationDate: '',
         isActive: false,
+        activationDate: '',
+        desactivationDate: ''
     });
 
     const [currentRule, setCurrentRule] = useState({
@@ -374,16 +376,40 @@ const RulesManagement = () => {
         try {
             if (!newRule.version || !newRule.workflowName || newRule.rules.length === 0) {
                 throw new Error('Please fill all required fields');
+
             }
+            
+                const now = new Date();
+
+                // Validate dates
+                if (newRule.activationDate && new Date(newRule.activationDate) < now) {
+                    throw new Error("Activation Date must be in the future.");
+                }
+                if (newRule.desactivationDate && new Date(newRule.desactivationDate) < now) {
+                    throw new Error("Desactivation Date must be in the future.");
+                }
+                if (newRule.expirationDate && new Date(newRule.expirationDate) < now) {
+                    throw new Error("Expiration Date must be in the future.");
+                }
+
 
             const ruleData = {
                 ...newRule,
                 rules: JSON.stringify(newRule.rules),
                 expirationDate: newRule.expirationDate
                     ? new Date(newRule.expirationDate).toISOString()
-                    : null
+                    : null,
+
+                     activationDate: newRule.expirationDate
+                    ? new Date(newRule.activationDate).toISOString()
+                    : null,
+
+                     desactivationDate: newRule.expirationDate
+                    ? new Date(newRule.desactivationDate).toISOString()
+                    : null,
             };
 
+            console.log('Payload being sent:', ruleData); // Debugging line
             const { data } = await axios.post(`${API_BASE_URL}/RulesManagement`, ruleData);
 
             setNewRule({
@@ -391,7 +417,9 @@ const RulesManagement = () => {
                 workflowName: '',
                 rules: [],
                 expirationDate: '',
-                isActive: true
+                isActive: true,
+                activationDate: '',
+                desactivationDate: ''
             });
 
             setRules(prev => [...prev, {
@@ -666,6 +694,40 @@ const RulesManagement = () => {
                             InputLabelProps={{ shrink: true }}
                         />
                     </Grid>
+
+                    {/*  u cann delete thsese two as well as the const additions*/ }
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                label="Activation Date & Time"
+                                type="datetime-local"
+                                value={newRule.activtionDate}
+                                onChange={(e) => setNewRule({ ...newRule, activationDate: e.target.value })}
+                                fullWidth
+                                size="small"
+                                InputLabelProps={{ shrink: true }}
+                            />
+
+                    </Grid>
+
+
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            label="Desactivation Date & Time"
+                            type="datetime-local"
+                            value={newRule.desactivtionDate}
+                            onChange={(e) => setNewRule({ ...newRule, desactivationDate: e.target.value })}
+                            fullWidth
+                            size="small"
+                            InputLabelProps={{ shrink: true }}
+                        />
+
+                    </Grid>
+
+
+
+
+
+
                     <Grid item xs={12} md={6} sx={{ display: 'flex', alignItems: 'flex-end' }}>
                         <Button
                             variant="contained"

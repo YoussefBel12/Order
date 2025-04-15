@@ -202,14 +202,7 @@ namespace Order.API.Controllers
         // GET: api/RulesManagement
         // Retrieves all rules configurations.
 
-        /*
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<RulesEngineConfigs>>> GetAllRules()
-        {
-            var rules = await _dbContext.RulesEngineConfigs.ToListAsync();
-            return Ok(rules);
-        }
-        */
+     
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RulesEngineConfigs>>> GetAllRules(
@@ -248,26 +241,13 @@ namespace Order.API.Controllers
 
         // POST: api/RulesManagement
         // Creates a new rule configuration.
-        /*
-        [HttpPost]
-        public async Task<ActionResult<RulesEngineConfigs>> CreateRule(RulesEngineConfigs ruleConfig)
-        {
-            // Optionally, add validation here for your JSON rules format
-
-            _dbContext.RulesEngineConfigs.Add(ruleConfig);
-            await _dbContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetRule), new { id = ruleConfig.Id }, ruleConfig);
-        }
-        */
-
+       
 
 
 
 
         [HttpPost]
-        public async Task<ActionResult<RulesEngineConfigs>> CreateRule(
-    [FromBody] RulesEngineConfigs ruleConfig)
+        public async Task<ActionResult<RulesEngineConfigs>> CreateRule( [FromBody] RulesEngineConfigs ruleConfig)
         {
             // Ensure new rules aren't archived by default
             ruleConfig.IsArchived = false;
@@ -318,23 +298,7 @@ namespace Order.API.Controllers
 
         // DELETE: api/RulesManagement/{id}
         // Deletes a rule configuration.
-        /*
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRule(int id)
-        {
-            var ruleConfig = await _dbContext.RulesEngineConfigs.FindAsync(id);
-            if (ruleConfig == null)
-            {
-                return NotFound();
-            }
-
-            _dbContext.RulesEngineConfigs.Remove(ruleConfig);
-            await _dbContext.SaveChangesAsync();
-
-            return NoContent();
-        }
-        */
-
+      
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRule(int id)
@@ -363,18 +327,7 @@ namespace Order.API.Controllers
 
         // GET: api/RulesManagement/workflow/{workflowName}
         // Optional: Retrieves rules configurations filtered by workflow name.
-        /*
-         [HttpGet("workflow/{workflowName}")]
-         public async Task<ActionResult<IEnumerable<RulesEngineConfigs>>> GetRulesByWorkflow(string workflowName)
-         {
-             var rules = await _dbContext.RulesEngineConfigs
-      .Where(r => r.WorkflowName == workflowName)
-      .ToListAsync();
-
-
-             return Ok(rules);
-         }
-        */
+       
         [HttpGet("workflow/{workflowName}")]
         public async Task<ActionResult<IEnumerable<RulesEngineConfigs>>> GetRulesByWorkflow(
      string workflowName,

@@ -93,6 +93,11 @@ builder.Services.Configure<ConfigurationBuilder>(
 // Add the background service
 builder.Services.AddHostedService<RuleArchivingService>();
 
+
+builder.Services.AddHostedService<RulesActivationService>();
+
+
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
