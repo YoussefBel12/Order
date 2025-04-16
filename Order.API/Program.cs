@@ -82,7 +82,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 builder.Services.AddScoped<RulesEngineService>();
 
-
+builder.Services.AddScoped<IStockService, StockService>();
 
 
 // Add configuration binding
@@ -99,6 +99,13 @@ builder.Services.AddHostedService<RulesActivationService>();
 
 
 builder.Services.AddControllers();
+
+
+
+
+
+
+
 
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
