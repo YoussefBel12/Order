@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Order.API.Entities.Stock;
+
 
 namespace Order.API.Controllers
 {
@@ -9,10 +10,12 @@ namespace Order.API.Controllers
     public class StockController : ControllerBase
     {
         private readonly IMediator _mediator;
+       
 
-        public StockController(IMediator mediator)
+        public StockController(IMediator mediator )
         {
             _mediator = mediator;
+            
         }
 
         [HttpPost("product")]
@@ -47,6 +50,11 @@ namespace Order.API.Controllers
         public async Task<ActionResult<int>> AddStock([FromBody] AddStockCommand command)
         {
             var stockId = await _mediator.Send(command);
+
+
+
+
+
             return CreatedAtAction(nameof(GetAllStocks), new { id = stockId }, stockId);
         }
 
@@ -56,5 +64,24 @@ namespace Order.API.Controllers
             var stocks = await _mediator.Send(new GetAllStocksQuery());
             return Ok(stocks);
         }
+
+
+        /* i dont need this endpoint i think i made it for elsa but nvm
+         
+        [HttpPost("stock/event")]
+        public IActionResult ReceiveStockEvent([FromBody] object payload)
+        {
+            // Optional: log or handle the event from Elsa
+            return Ok();
+        }
+        */
+
+
+
+
+
+
+
+
     }
 }

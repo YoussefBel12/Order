@@ -1,15 +1,34 @@
-using System.Reflection;
+﻿using System.Reflection;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using Elsa.EntityFrameworkCore.Extensions;
+using Elsa.EntityFrameworkCore.Modules.Management;
+using Elsa.EntityFrameworkCore.Modules.Runtime;
+using Elsa.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Order.API;
 
 
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 // Add services to the container.
+
+
+
+
+
+
+
+
+
+
 
 
 builder.Services.AddCors(options =>
@@ -23,6 +42,26 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+
+
+
+// cors for elsa u can delete if it dosent work
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowElsa", policy =>
+    {
+        policy
+            .WithOrigins("https://localhost:52344") // ✅ Elsa Server origin
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+
+
+
+
+
 
 
 
@@ -85,6 +124,15 @@ builder.Services.AddScoped<RulesEngineService>();
 builder.Services.AddScoped<IStockService, StockService>();
 
 
+
+
+
+
+
+
+
+
+
 // Add configuration binding
 builder.Services.Configure<ConfigurationBuilder>(
     builder.Configuration.GetSection("RuleArchiving")
@@ -99,6 +147,7 @@ builder.Services.AddHostedService<RulesActivationService>();
 
 
 builder.Services.AddControllers();
+
 
 
 
@@ -155,6 +204,11 @@ app.UseHttpsRedirection();
 app.UseCors("AllowReactApp"); 
 
 app.UseAuthorization();
+
+//added 2 lines below
+
+app.UseCors("AllowElsa");
+
 
 app.MapControllers();
 

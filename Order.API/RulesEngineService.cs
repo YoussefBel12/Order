@@ -15,7 +15,7 @@ namespace Order.API
         private readonly ILogger<RulesEngineService> _logger;
         private readonly OrderDbContext _dbContext;
 
-        public RulesEngineService(OrderDbContext dbContext, ILogger<RulesEngineService> logger )
+        public RulesEngineService(OrderDbContext dbContext, ILogger<RulesEngineService> logger)
         {
             _dbContext = dbContext;
             _logger = logger;

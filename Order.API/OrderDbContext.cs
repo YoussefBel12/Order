@@ -36,7 +36,15 @@ namespace Order.API
                 .WithMany(w => w.Stocks)
                 .HasForeignKey(s => s.WarehouseId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+
+            
+
+
         }
+
+
+       
 
     }
 }
