@@ -283,6 +283,58 @@
 
 
 
+
+    // new update queries to test with elsa
+
+    public class UpdateStockCommand : IRequest<int>
+    {
+        [Required]
+        public int Id { get; set; }
+        [Required]
+        public int Quantity { get; set; }
+    }
+
+    public class UpdateStockCommandHandler : IRequestHandler<UpdateStockCommand, int>
+    {
+        private readonly OrderDbContext _context;
+
+        public UpdateStockCommandHandler(OrderDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<int> Handle(UpdateStockCommand request, CancellationToken cancellationToken)
+        {
+            var stock = await _context.Stocks.FindAsync(request.Id);
+            if (stock == null)
+            {
+                throw new KeyNotFoundException("Stock not found");
+            }
+
+            stock.Quantity = request.Quantity;
+            stock.LastUpdated = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return stock.Id;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 

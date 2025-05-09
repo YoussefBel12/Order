@@ -66,15 +66,20 @@ namespace Order.API.Controllers
         }
 
 
-        /* i dont need this endpoint i think i made it for elsa but nvm
-         
-        [HttpPost("stock/event")]
-        public IActionResult ReceiveStockEvent([FromBody] object payload)
+        //PUT Endpoint To test Elsa
+
+        [HttpPut("stock/{id}")]
+        public async Task<ActionResult<int>> UpdateStock(int id, [FromBody] UpdateStockCommand command)
         {
-            // Optional: log or handle the event from Elsa
-            return Ok();
+            if (id != command.Id)
+            {
+                return BadRequest("Stock ID mismatch");
+            }
+
+            var updatedStockId = await _mediator.Send(command);
+            return Ok(updatedStockId);
         }
-        */
+
 
 
 

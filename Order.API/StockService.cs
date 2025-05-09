@@ -29,6 +29,28 @@ namespace Order.API
                 .Include(s => s.Warehouse)
                 .ToListAsync();
         }
+
+
+
+        //added PUT Request support for ELsa    
+        public async Task<int> UpdateStockAsync(int id, int quantity)
+        {
+            var stock = await _context.Stocks.FindAsync(id);
+            if (stock == null)
+            {
+                throw new KeyNotFoundException("Stock not found");
+            }
+
+            stock.Quantity = quantity;
+            stock.LastUpdated = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return stock.Id;
+        }
+
+
+
+
     }
 }
 
