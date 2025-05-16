@@ -1,11 +1,6 @@
 ﻿using System.Reflection;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
-using Elsa.EntityFrameworkCore.Extensions;
-using Elsa.EntityFrameworkCore.Modules.Management;
-using Elsa.EntityFrameworkCore.Modules.Runtime;
-using Elsa.Extensions;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Order.API;
@@ -45,7 +40,7 @@ builder.Services.AddCors(options =>
 
 
 
-// cors for elsa u can delete if it dosent work
+// cors for elsa u can delete if it dosent work //i think it works?
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowElsa", policy =>
@@ -124,6 +119,7 @@ builder.Services.AddScoped<RulesEngineService>();
 builder.Services.AddScoped<IStockService, StockService>();
 
 
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
 
@@ -205,7 +201,7 @@ app.UseCors("AllowReactApp");
 
 app.UseAuthorization();
 
-//added 2 lines below
+//added 2 lines below //i forgot probably one line
 
 app.UseCors("AllowElsa");
 

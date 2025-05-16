@@ -68,14 +68,16 @@ namespace Order.API.Controllers
 
         //PUT Endpoint To test Elsa
 
-        [HttpPut("stock/{id}")]
-        public async Task<ActionResult<int>> UpdateStock(int id, [FromBody] UpdateStockCommand command)
+        [HttpPut("stock/{id}")]                      //int id was here next to updatestock
+                                                        //L nvm fixed it
+        public async Task<ActionResult<int>> UpdateStock(int id , [FromBody] UpdateStockCommand command)
         {
+            /*
             if (id != command.Id)
             {
                 return BadRequest("Stock ID mismatch");
             }
-
+            */
             var updatedStockId = await _mediator.Send(command);
             return Ok(updatedStockId);
         }

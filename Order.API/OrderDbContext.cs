@@ -19,6 +19,10 @@ namespace Order.API
         public DbSet<Product> Products { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<Stock> Stocks { get; set; }
+        //new for notification
+
+        public DbSet<RestockNotification> RestockNotifications { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
