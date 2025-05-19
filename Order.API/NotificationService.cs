@@ -45,5 +45,62 @@ public class NotificationService : INotificationService
         _context.RestockNotifications.Add(entity);
         _context.SaveChanges();
     }
+
+
+    //i added more crud here 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public IEnumerable<RestockNotification> GetAllNotifications()
+    {
+        return _context.RestockNotifications.ToList();
+    }
+
+    public RestockNotification GetNotificationById(int id)
+    {
+        return _context.RestockNotifications.Find(id);
+    }
+
+    public bool UpdateNotification(RestockNotification notification)
+    {
+        var existing = _context.RestockNotifications.Find(notification.Id);
+        if (existing == null)
+            return false;
+
+        // Update ONLY the UserConfirmed property
+        existing.UserConfirmed = notification.UserConfirmed;
+        _context.SaveChanges();
+        return true;
+    }
+
+    public bool DeleteNotification(int id)
+    {
+        var existing = _context.RestockNotifications.Find(id);
+        if (existing == null)
+            return false;
+
+        _context.RestockNotifications.Remove(existing);
+        _context.SaveChanges();
+        return true;
+    }
+
+
+
+
+
+
+
+
+
 }
 
