@@ -15,12 +15,18 @@
                 _notificationService = notificationService;
             }
 
-            [HttpPost]
-            public IActionResult Receive([FromBody] RestockNotification notification)
-            {
-                _notificationService.HandleNotification(notification);
-                return Ok(new { received = true });
-            }
+        [HttpPost]
+        public IActionResult Receive([FromBody] RestockNotification notification)
+        {
+            // _notificationService.HandleNotification(notification);
+            //return Ok(new { received = true });
+
+            var saved = _notificationService.HandleNotification(notification);
+            return Ok(new { id = saved.Id }); // ✅ 'saved' is now defined
+
+
+
+        }
 
         //more crud endpoints for testing
 
@@ -65,11 +71,81 @@
 
 
 
+        // In your Order Project's NotificationController.cs
+        [HttpGet("api/notifications/{id}")]
+        public ActionResult<RestockNotification> GetNotification(int id)
+        {
+            var notification = _notificationService.GetNotificationById(id);
+            if (notification == null) return NotFound();
+            return notification;
+        }
+
+        [HttpPost("api/notifications/{id}/confirm")]
+        public async Task<IActionResult> ConfirmNotification(int id)
+        {
+            var notification = _notificationService.GetNotificationById(id);
+            if (notification == null) return NotFound();
+
+            notification.UserConfirmed = true;
+            _notificationService.UpdateNotification(notification);
+
+            // Call Elsa's HTTP Endpoint to resume the workflow
+            using var httpClient = new HttpClient();
+            try
+            {
+                var elsaResponse = await httpClient.GetAsync("https://localhost:52344/api/workflows/confirm-restock");
+                elsaResponse.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+                // Optionally log or handle the error
+                return StatusCode(500, $"Failed to notify Elsa: {ex.Message}");
+            }
+
+            return Ok();
+        }
+
+
+
+
+
+
+        [HttpPost("api/notifications/confirm-latest")]
+        public async Task<IActionResult> ConfirmLatestNotification()
+        {
+            var notification = _notificationService.GetLatestNotification();
+            if (notification == null) return NotFound();
+
+            notification.UserConfirmed = true;
+            _notificationService.UpdateNotification(notification);
+
+            using var httpClient = new HttpClient();
+            try
+            {
+                var elsaResponse = await httpClient.GetAsync("https://localhost:52344/api/workflows/confirm-restock");
+                elsaResponse.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to notify Elsa: {ex.Message}");
+            }
+
+            return Ok();
+        }
+
+
+
+
+
+
+
+
+
 
 
 
     }
-    
+
 
 
 }

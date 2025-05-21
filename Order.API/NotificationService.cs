@@ -32,18 +32,38 @@ public class NotificationService : INotificationService
         _context = context;
     }
 
-    public void HandleNotification(RestockNotification restockNotification)
+
+
+    public RestockNotification? GetLatestNotification()
+    {
+        return _context.RestockNotifications
+            .OrderByDescending(n => n.Id)
+            .FirstOrDefault();
+    }
+
+
+
+
+
+
+
+
+    public RestockNotification HandleNotification(RestockNotification restockNotification)
     {
         var entity = new RestockNotification
         {
             Message = restockNotification.Message,
             StockIds = restockNotification.StockIds,
             //i added this here and entity
-            UserConfirmed = restockNotification.UserConfirmed
+            UserConfirmed = restockNotification.UserConfirmed ,
+            //i added this too
+            WorkflowInstanceId = restockNotification.WorkflowInstanceId
         };
 
         _context.RestockNotifications.Add(entity);
         _context.SaveChanges();
+        //i removeed void from interface and made it restocknotification
+        return entity;
     }
 
 
