@@ -69,16 +69,7 @@
         }
 
 
-
-
-        // In your Order Project's NotificationController.cs
-        [HttpGet("api/notifications/{id}")]
-        public ActionResult<RestockNotification> GetNotification(int id)
-        {
-            var notification = _notificationService.GetNotificationById(id);
-            if (notification == null) return NotFound();
-            return notification;
-        }
+      
 
         [HttpPost("api/notifications/{id}/confirm")]
         public async Task<IActionResult> ConfirmNotification(int id)
@@ -104,7 +95,7 @@
 
             return Ok();
         }
-
+        
 
 
 
