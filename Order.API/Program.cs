@@ -1,9 +1,15 @@
 ﻿using System.Reflection;
+using System.Text;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Order.API;
+using Order.API.Entities;
+using Order.API.Identity;
 
 
 
@@ -16,6 +22,32 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 
+// Add Identity services
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
+    .AddEntityFrameworkStores<OrderDbContext>()
+    .AddDefaultTokenProviders();
+
+// Add JWT authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
+    };
+});
+
+builder.Services.AddAuthorization();
 
 
 
@@ -150,7 +182,8 @@ builder.Services.AddControllers();
 
 
 
-
+/*
+ this is old swagger dont delete it yet
 
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
@@ -168,6 +201,42 @@ builder.Services.AddSwaggerGen(c =>
         });
     }
 
+
+
+
+
+    // Configure Swagger/OpenAPI to include JWT authentication
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        // Enable Swagger to recognize the Bearer token
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Enter your Bearer token"
+        });
+
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+    });
+
+
     c.DocInclusionPredicate((version, apiDescription) =>
     {
         return apiDescription.GroupName == version;
@@ -175,6 +244,43 @@ builder.Services.AddSwaggerGen(c =>
 
     c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
 });
+*/
+// Configure Swagger/OpenAPI to include JWT authentication
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Enable Swagger to recognize the Bearer token
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your Bearer token"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+});
+
+
+
+
+
+
 
 
 var app = builder.Build();
@@ -183,7 +289,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(/*c =>
     {
         var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
@@ -191,19 +297,23 @@ if (app.Environment.IsDevelopment())
         {
             c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
         }
-    });
+    }*/); // this commented line is for old swagger its cmnted up
 }
 
 app.UseHttpsRedirection();
 
 
-app.UseCors("AllowReactApp"); 
+app.UseCors("AllowReactApp");
 
-app.UseAuthorization();
 
 //added 2 lines below //i forgot probably one line
 
 app.UseCors("AllowElsa");
+
+
+//added 2 lines below for Identity and JWT
+app.UseAuthentication();
+app.UseAuthorization();
 
 
 app.MapControllers();

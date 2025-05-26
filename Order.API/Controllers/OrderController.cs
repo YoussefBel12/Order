@@ -120,17 +120,21 @@ namespace Order.API.Controllers
 }
 */
 
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MediatR;
-using Order.API.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Order.API;
+using Order.API.Entities;
 
 namespace Order.API.Controllers
 {
+
+    //testing authorization u can remove this later
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class OrderController : ControllerBase

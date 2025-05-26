@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Order.API.Entities;
 using Order.API.Entities.Stock;
+using Order.API.Identity;
 
 namespace Order.API
 {
-    public class OrderDbContext : DbContext
+    public class OrderDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
         public OrderDbContext(DbContextOptions<OrderDbContext> options) : base(options)
         {
