@@ -101,9 +101,10 @@ export default Home;
 
 import { Link } from 'react-router-dom';
 import { Box, Button, Typography, Grid, Paper, IconButton, Popover, Badge } from '@mui/material';
-import { Inventory as InventoryIcon, Rule as RuleIcon, Notifications as NotificationsIcon } from '@mui/icons-material';
+import { Inventory as InventoryIcon, Rule as RuleIcon, Notifications as NotificationsIcon , Store as StoreIcon} from '@mui/icons-material';
 import { useState } from 'react';
 import NotificationCenter from './NotificationCenter';
+
 
 const Home = () => {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -193,6 +194,40 @@ const Home = () => {
                         </Button>
                     </Paper>
                 </Grid>
+
+
+
+                {/*i added this for stock management */} 
+                <Grid item xs={12} md={/*4*/6}>
+                    <Paper elevation={3} sx={{ p: 4, borderRadius: 2/*, bgcolor: 'success.main' */}}>
+                        <Typography variant="h6" gutterBottom>
+                            Manage Stock
+                        </Typography>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                            View, add, and update product stock and warehouses.
+                        </Typography>
+                        <Button
+                            component={Link}
+                            to="/Stock"
+                            variant="contained"
+                            sx={{ bgcolor: 'success.dark', '&:hover': { bgcolor: 'success.light' } }}
+                            startIcon={<StoreIcon />}
+                            fullWidth
+                        >
+                            Go to Stock Management
+                        </Button>
+                    </Paper>
+                </Grid>
+            
+
+
+
+
+
+
+
+
+
             </Grid>
         </Box>
     );

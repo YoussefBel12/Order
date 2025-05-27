@@ -14,7 +14,7 @@ const Login = () => {
         // Check if the user is already logged in
         const token = localStorage.getItem('token');
         if (token) {
-            navigate('/tasks');
+            navigate('/home');
         }
     }, [navigate]);
 

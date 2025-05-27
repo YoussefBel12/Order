@@ -9,6 +9,8 @@ import Login from "./components/Login";
 import Register from "./components/Register"; 
 import { fetchUserData } from "./utils/auth";
 import { useEffect, useState } from "react";
+import StockManagement from "./components/StockManagement"; 
+import Layout from "./components/Layout";
 
 //function App() {
 const App = () => {
@@ -27,13 +29,30 @@ const App = () => {
     return (
 
         <>
+            {/* 
         <div>
             {userData && isLoggedIn && < div > Welcome, { userData.email }({ userData.role })</div>}
-            {/* Render features based on userData.role */}
+           
         </div>
 
-        
+        */}
 
+
+           
+
+            
+
+
+            {/*testing something delete later 
+            {userData && userData.role === 'user' ? (
+                <OrderManagement />
+            ) : (
+                <div style={{ padding: 32, textAlign: 'center', color: 'red', fontWeight: 'bold' }}>
+                    Access denied. Only users with the 'user' role can view orders.
+                </div>
+            )}  */ }
+
+            <Layout userData={userData}>
         <Routes>
 
             <Route path="/Home" element={<Home />} />
@@ -41,6 +60,8 @@ const App = () => {
             <Route path="/Rules" element={<RulesManagement />} />
             <Route path="/Notification" element={<NotificationCenter />} />
 
+                {/*added this*/}
+                <Route path="/Stock" element={<StockManagement />} />
           
 
             
@@ -51,7 +72,7 @@ const App = () => {
 
           </Routes>
 
-      
+                </Layout >
           </>
 
        

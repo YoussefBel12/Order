@@ -478,9 +478,18 @@ const OrderManagement = () => {
     });
 
     useEffect(() => {
+        // this to add jwt heder to request i guess plus addconfig to axios
+        const token = localStorage.getItem('token');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+          
+
         const fetchOrders = async () => {
-            try {
-                const { data } = await axios.get(`${API_BASE_URL}/Order`);
+            try {                                                         //added config here
+                const { data } = await axios.get(`${API_BASE_URL}/Order` , config);
                 setOrders(data.map(order => ({
                     ...order,
                     orderAmount: Number(order.orderAmount) || 0
@@ -660,5 +669,9 @@ const OrderManagement = () => {
         </Box>
     );
 };
+
+
+
+
 
 export default OrderManagement;
