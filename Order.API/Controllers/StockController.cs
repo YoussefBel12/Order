@@ -1,6 +1,7 @@
 ﻿
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Order.API.Controllers
@@ -10,12 +11,12 @@ namespace Order.API.Controllers
     public class StockController : ControllerBase
     {
         private readonly IMediator _mediator;
-       
+      
 
         public StockController(IMediator mediator )
         {
             _mediator = mediator;
-            
+           
         }
 
         [HttpPost("product")]
@@ -83,8 +84,15 @@ namespace Order.API.Controllers
         }
 
 
-
-
+        //new one for Elsa
+        [HttpGet("product/by-name/{name}")]
+        public async Task<ActionResult<ProductDto>> GetProductByName(string name)
+        {
+            var product = await _mediator.Send(new GetProductByNameQuery { Name = name });
+            if (product == null)
+                return NotFound();
+            return Ok(product);
+        }
 
 
 

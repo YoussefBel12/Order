@@ -209,8 +209,15 @@ const Layout = ({ userData, children }) => {
                     {!collapsed && (
                         <>
                             <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
-                                {userData ? userData.email : 'Not logged in'}
+                                {userData ? userData.email : 'Not logged in'}                    
                             </Typography>
+
+                            {/* you can use this to display fullname if u want 
+                            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
+                                {userData ? userData.firstName + "" +userData.lastName : ''}
+                            </Typography>
+                            */}
+
                             <Typography variant="body2" sx={{ color: 'grey.200' }}>
                                 {userData ? userData.role : ''}
                             </Typography>

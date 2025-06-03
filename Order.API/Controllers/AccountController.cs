@@ -53,6 +53,7 @@ namespace Order.API.Controllers
 
                 await _userManager.AddToRoleAsync(user, "User");
                 //    await _userManager.AddToRoleAsync(user, "Admin");
+                //    await _userManager.AddToRoleAsync(user , "StockManager");
 
                 return Ok(new { message = "User registered successfully" });
             }
@@ -136,7 +137,7 @@ namespace Order.API.Controllers
 
         [HttpGet("validate-token")]
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin , supervisor")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin , user")]
         public IActionResult ValidateToken()
         {
             return Ok(new { message = "Token is valid" });

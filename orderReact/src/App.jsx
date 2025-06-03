@@ -11,6 +11,8 @@ import { fetchUserData } from "./utils/auth";
 import { useEffect, useState } from "react";
 import StockManagement from "./components/StockManagement"; 
 import Layout from "./components/Layout";
+import CreatePurchaseFromProduct from "./components/CreatePurchaseFromProduct";
+
 
 //function App() {
 const App = () => {
@@ -53,7 +55,11 @@ const App = () => {
             )}  */ }
 
             <Layout userData={userData}>
+                {/*test this for a while */}
+                < CreatePurchaseFromProduct />
         <Routes>
+
+
 
             <Route path="/Home" element={<Home />} />
             <Route path="/Order" element={<OrderManagement />} />

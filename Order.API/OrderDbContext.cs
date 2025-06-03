@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Order.API.Entities;
+using Order.API.Entities.Purchase;
 using Order.API.Entities.Stock;
 using Order.API.Identity;
 
@@ -25,6 +26,9 @@ namespace Order.API
         //new for notification
 
         public DbSet<RestockNotification> RestockNotifications { get; set; }
+        //new for purchase
+        public DbSet<Purchase> Purchases { get; set; }
+        public DbSet<PurchaseList> PurchaseLists { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,7 +49,22 @@ namespace Order.API
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-            
+            //this is a new entity relations 
+
+            modelBuilder.Entity<Purchase>()
+       .HasMany(p => p.PurchaseLists)
+       .WithOne(pl => pl.Purchase)
+       .HasForeignKey(pl => pl.PurchaseId)
+       .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PurchaseList>()
+                .HasOne(pl => pl.User)
+                .WithMany()
+                .HasForeignKey(pl => pl.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            base.OnModelCreating(modelBuilder);
+
 
 
         }

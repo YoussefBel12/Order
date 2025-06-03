@@ -321,6 +321,40 @@
 
 
 
+    //search for product by name
+    // In MediatorStock.cs or similar
+    public class GetProductByNameQuery : IRequest<ProductDto?>
+    {
+        public string Name { get; set; }
+    }
+
+    public class GetProductByNameQueryHandler : IRequestHandler<GetProductByNameQuery, ProductDto?>
+    {
+        private readonly OrderDbContext _context;
+        public GetProductByNameQueryHandler(OrderDbContext context) => _context = context;
+
+        public async Task<ProductDto?> Handle(GetProductByNameQuery request, CancellationToken cancellationToken)
+        {
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Name == request.Name, cancellationToken);
+
+            if (product == null)
+                return null;
+
+            return new ProductDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                SKU = product.SKU,
+                Description = product.Description,
+                Price = product.Price,
+                IsActive = product.IsActive
+            };
+        }
+    }
+
+
+
 
 
 

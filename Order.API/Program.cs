@@ -136,6 +136,13 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
 
 
 
+//added this primarly for Purchase feature
+// Register MediatR for Purchase feature (single registration is enough)
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
+    typeof(GetAllPurchasesQueryHandler).Assembly
+));
+
+
 
 // Register DbContext
 builder.Services.AddDbContext<OrderDbContext>(options =>
@@ -154,6 +161,7 @@ builder.Services.AddScoped<IStockService, StockService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
+builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 
 
 
