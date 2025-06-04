@@ -149,6 +149,9 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import MenuIcon from '@mui/icons-material/Menu';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; // Add this import
+
+
 
 const drawerWidth = 220;
 const collapsedWidth = 64;
@@ -159,6 +162,7 @@ const navLinks = [
     { text: 'Stock', icon: <StoreIcon />, to: '/Stock' },
     { text: 'Rules', icon: <RuleIcon />, to: '/Rules' },
     { text: 'Login', icon: <LoginIcon />, to: '/Login' },
+     { text: 'Purchase', icon: <ShoppingCartIcon />, to: '/purchase' }, // <-- Add this line
     { text: 'Register', icon: <PersonAddIcon />, to: '/Register' },
 ];
 
