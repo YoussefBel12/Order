@@ -150,8 +150,8 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; // Add this import
-
-
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'; // Import for My Bills
+import LogoutIcon from '@mui/icons-material/Logout'; // Import for Logout
 
 const drawerWidth = 220;
 const collapsedWidth = 64;
@@ -163,7 +163,9 @@ const navLinks = [
     { text: 'Rules', icon: <RuleIcon />, to: '/Rules' },
     { text: 'Login', icon: <LoginIcon />, to: '/Login' },
      { text: 'Purchase', icon: <ShoppingCartIcon />, to: '/purchase' }, // <-- Add this line
-    { text: 'Register', icon: <PersonAddIcon />, to: '/Register' },
+ //   { text: 'Register', icon: <PersonAddIcon />, to: '/Register' },
+    { text: 'My Bills', icon: <ReceiptLongIcon />, to: '/Mybills' },
+    { text: 'Logout', icon: <LogoutIcon />, to: '/logout' }
 ];
 
 const Layout = ({ userData, children }) => {
@@ -276,6 +278,16 @@ const Layout = ({ userData, children }) => {
                                     />
                                 )}
                             </ListItem>
+
+
+
+
+                          
+
+
+
+
+
                         </Tooltip>
                     ))}
                 </List>

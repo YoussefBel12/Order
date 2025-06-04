@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Order.API.Entities;
+using Order.API.Entities.Bill;
 using Order.API.Entities.Purchase;
 using Order.API.Entities.Stock;
 using Order.API.Identity;
@@ -29,6 +30,11 @@ namespace Order.API
         //new for purchase
         public DbSet<Purchase> Purchases { get; set; }
         public DbSet<PurchaseList> PurchaseLists { get; set; }
+        //those for the Bills System
+        public DbSet<Bill> Bills { get; set; }
+        public DbSet<BillItem> BillItems { get; set; }
+
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -67,10 +73,20 @@ namespace Order.API
 
 
 
+            //relationships for Bill and BillItem and application user
+            modelBuilder.Entity<Bill>()
+       .HasOne(b => b.User)
+       .WithMany()
+       .HasForeignKey(b => b.UserId)
+       .OnDelete(DeleteBehavior.Restrict);
+
+
+
+
         }
 
 
-       
+
 
     }
 }

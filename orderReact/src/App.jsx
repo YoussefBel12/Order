@@ -12,7 +12,8 @@ import { useEffect, useState } from "react";
 import StockManagement from "./components/StockManagement"; 
 import Layout from "./components/Layout";
 import PurchaseProductComponent from "./components/PurchaseProductComponent";
-
+import MyBills from "./components/MyBills";
+import Logout from "./components/Logout";
 
 //function App() {
 const App = () => {
@@ -40,8 +41,8 @@ const App = () => {
         */}
 
 
-           
-     
+
+            
             
 
 
@@ -58,7 +59,10 @@ const App = () => {
                
         <Routes>
 
+                    <Route path="/logout" element={<Logout onLogout={() => setUserData(null)} />} />
 
+
+                    <Route path="/mybills" element={<MyBills />} />
 
                  <Route path="/Home" element={<Home />} />   
                    
