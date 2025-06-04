@@ -9,6 +9,9 @@
         public decimal Price { get; set; }
         public bool IsActive { get; set; } = true;
 
+        // In Product.cs
+        public string? ImageUrl { get; set; }
+
         // Navigation
         public ICollection<Stock> Stocks { get; set; } = new List<Stock>();
     }

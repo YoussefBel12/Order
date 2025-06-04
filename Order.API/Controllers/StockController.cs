@@ -19,8 +19,8 @@ namespace Order.API.Controllers
            
         }
 
-        [HttpPost("product")]
-        public async Task<ActionResult<int>> AddProduct([FromBody] AddProductCommand command)
+        [HttpPost("product")]                          //this was frombody instead so u cann upload
+        public async Task<ActionResult<int>> AddProduct([FromForm] AddProductCommand command)
         {
             var productId = await _mediator.Send(command);
             return CreatedAtAction(nameof(GetAllProducts), new { id = productId }, productId);

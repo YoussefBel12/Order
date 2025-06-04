@@ -17,9 +17,12 @@
             public string Description { get; set; } = string.Empty;
             [Required]
             public decimal Price { get; set; }
-            public bool IsActive { get; set; } = true;
+        // For file upload
+        public IFormFile? Image { get; set; }
+        public bool IsActive { get; set; } = true;
         }
 
+    /* old add cmndhandler without image support
         public class AddProductCommandHandler : IRequestHandler<AddProductCommand, int>
         {
             private readonly OrderDbContext _context;
@@ -35,6 +38,8 @@
                     Name = request.Name,
                     SKU = request.SKU,
                     Description = request.Description,
+                    //added this line for image URL
+                    ImageUrl = ImageUrl, // New property for image URL
                     Price = request.Price,
                     IsActive = request.IsActive
                 };
@@ -44,25 +49,64 @@
                 return product.Id;
             }
         }
-
-
-    /*
-        public class GetAllProductsQuery : IRequest<List<Product>> { }
-
-        public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, List<Product>>
-        {
-            private readonly OrderDbContext _context;
-            public GetAllProductsQueryHandler(OrderDbContext context)
-            {
-                _context = context;
-            }
-
-            public async Task<List<Product>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
-            {
-                return await _context.Products.ToListAsync();
-            }
-        }
     */
+    //new one for now
+    public class AddProductCommandHandler : IRequestHandler<AddProductCommand, int>
+    {
+        private readonly OrderDbContext _context;
+        private readonly IWebHostEnvironment _env;
+
+        public AddProductCommandHandler(OrderDbContext context, IWebHostEnvironment env)
+        {
+            _context = context;
+            _env = env;
+        }
+
+        public async Task<int> Handle(AddProductCommand request, CancellationToken cancellationToken)
+        {
+            string? imageUrl = null;
+            if (request.Image != null && request.Image.Length > 0)
+            {
+                var uploads = Path.Combine(_env.WebRootPath, "images");
+                if (!Directory.Exists(uploads))
+                    Directory.CreateDirectory(uploads);
+
+                var fileName = Guid.NewGuid() + Path.GetExtension(request.Image.FileName);
+                var filePath = Path.Combine(uploads, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await request.Image.CopyToAsync(stream, cancellationToken);
+                }
+
+                imageUrl = $"/images/{fileName}";
+            }
+
+            var product = new Product
+            {
+                Name = request.Name,
+                SKU = request.SKU,
+                Description = request.Description,
+                ImageUrl = imageUrl,
+                Price = request.Price,
+                IsActive = request.IsActive
+            };
+
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+            return product.Id;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 
     public class GetAllProductsQuery : IRequest<List<ProductDto>> { }
     public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, List<ProductDto>>
@@ -84,6 +128,7 @@
                 Name = p.Name,
                 SKU = p.SKU,
                 Description = p.Description,
+                ImageUrl = p.ImageUrl, //img support added
                 Price = p.Price,
                 IsActive = p.IsActive
             }).ToList();
@@ -347,6 +392,7 @@
                 Name = product.Name,
                 SKU = product.SKU,
                 Description = product.Description,
+                ImageUrl = product.ImageUrl, // Include the image URL
                 Price = product.Price,
                 IsActive = product.IsActive
             };
