@@ -118,7 +118,7 @@ namespace Order.API.Controllers
 
 
         //everything here is test for elsa and sepration 
-
+        //this is actully the endpoint elsa use
 
         [HttpPost("purchase")]
         public async Task<IActionResult> CreatePurchase([FromBody] AddPurchaseCommand command)
@@ -145,7 +145,8 @@ namespace Order.API.Controllers
                 purchase.Description,
                 purchase.Price,
                 purchase.IsActive,
-                Timestamp = DateTime.UtcNow
+                Timestamp = DateTime.UtcNow,
+                purchase.Quantity // Include Quantity in the payload
             };
 
             using var httpClient = new HttpClient();

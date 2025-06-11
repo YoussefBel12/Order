@@ -15,6 +15,8 @@ namespace Order.API
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public bool IsActive { get; set; }
+        //added Quantity property
+        public int Quantity { get; set; } 
     }
 
     public class PurchaseListDto
@@ -37,6 +39,7 @@ namespace Order.API
         [Required]
         public decimal Price { get; set; }
         public bool IsActive { get; set; } = true;
+        public int Quantity { get; set; }  // Added Quantity property
     }
 
     public class AddPurchaseCommandHandler : IRequestHandler<AddPurchaseCommand, int>
@@ -52,7 +55,8 @@ namespace Order.API
                 SKU = request.SKU,
                 Description = request.Description,
                 Price = request.Price,
-                IsActive = request.IsActive
+                IsActive = request.IsActive,
+                Quantity = request.Quantity  // Set Quantity
             };
             _context.Purchases.Add(purchase);
             await _context.SaveChangesAsync(cancellationToken);
@@ -78,7 +82,8 @@ namespace Order.API
                 SKU = p.SKU,
                 Description = p.Description,
                 Price = p.Price,
-                IsActive = p.IsActive
+                IsActive = p.IsActive,
+                Quantity = p.Quantity  // Include Quantity in DTO
             }).ToList();
         }
     }
