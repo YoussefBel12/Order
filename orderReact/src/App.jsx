@@ -14,6 +14,8 @@ import Layout from "./components/Layout";
 import PurchaseProductComponent from "./components/PurchaseProductComponent";
 import MyBills from "./components/MyBills";
 import Logout from "./components/Logout";
+import ReportingDashboard from "./components/ReportingDashboard";
+
 
 //function App() {
 const App = () => {
@@ -80,6 +82,9 @@ const App = () => {
             <Route path="/Register" element={<Register />} /> 
             <Route path="/" element={<Navigate to="/login" />} />
 
+                    {/*Test Route for Reports*/}
+                    <Route path="/reports" element={<ReportingDashboard />} />
+                    
 
           </Routes>
 

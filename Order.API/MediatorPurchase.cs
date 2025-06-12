@@ -16,7 +16,10 @@ namespace Order.API
         public decimal Price { get; set; }
         public bool IsActive { get; set; }
         //added Quantity property
-        public int Quantity { get; set; } 
+        public int Quantity { get; set; }
+
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
     }
 
     public class PurchaseListDto
@@ -40,6 +43,8 @@ namespace Order.API
         public decimal Price { get; set; }
         public bool IsActive { get; set; } = true;
         public int Quantity { get; set; }  // Added Quantity property
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
     }
 
     public class AddPurchaseCommandHandler : IRequestHandler<AddPurchaseCommand, int>
@@ -56,7 +61,8 @@ namespace Order.API
                 Description = request.Description,
                 Price = request.Price,
                 IsActive = request.IsActive,
-                Quantity = request.Quantity  // Set Quantity
+                Quantity = request.Quantity  ,// Set Quantity 
+                CreatedDate = request.CreatedDate
             };
             _context.Purchases.Add(purchase);
             await _context.SaveChangesAsync(cancellationToken);
@@ -83,7 +89,8 @@ namespace Order.API
                 Description = p.Description,
                 Price = p.Price,
                 IsActive = p.IsActive,
-                Quantity = p.Quantity  // Include Quantity in DTO
+                Quantity = p.Quantity ,// Include Quantity in DTO
+                CreatedDate = p.CreatedDate
             }).ToList();
         }
     }

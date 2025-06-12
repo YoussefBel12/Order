@@ -195,6 +195,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ReportingDashboard from "./ReportingDashboard";
+
 
 const drawerWidth = 220;
 const collapsedWidth = 64;
@@ -208,6 +210,8 @@ const navLinks = [
     { text: 'Purchase', icon: <ShoppingCartIcon />, to: '/purchase' },
     { text: 'My Bills', icon: <ReceiptLongIcon />, to: '/Mybills' },
     { text: 'Logout', icon: <LogoutIcon />, to: '/logout' }
+    //test adding the reporting dashboard link
+    , { text: 'Reports', icon: <AccountCircleIcon />, to: '/reports', roles: ['stockmanager']  }
 ];
 
 const Layout = ({ userData, children }) => {
@@ -326,9 +330,12 @@ const Layout = ({ userData, children }) => {
                     ))}
                 </List>
             </Drawer>
+            
             <Box component="main" sx={{ flexGrow: 1, p: 3, minHeight: '100vh' }}>
                 {children}
             </Box>
+           
+
         </Box>
     );
 };

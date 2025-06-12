@@ -12,6 +12,8 @@ namespace Order.API.Entities.Purchase
         public bool IsActive { get; set; } = true;
         public int Quantity { get; set; } = 1;
 
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
         // Navigation
         public ICollection<PurchaseList> PurchaseLists { get; set; } = new List<PurchaseList>();
     }
